@@ -2,88 +2,121 @@
 v-container(grid-list-md text-xs-center)
 	v-layout(row wrap)
 		v-flex(xs12)
-			v-card
-				.uniform
-					img.image.pa-2(
+			v-card.pt-4
+				.uniform.ma-2
+					img.image(
 						:src="image"
 					)
-				.uniform
-					img.image.pa-2(
+				.uniform.ma-2
+					img.image(
 						:src="stylePreview"
 					)
-				.uniform
-					img#image.image.pa-2(
+				.uniform.ma-2
+					img#image.image(
 						:src="imageSrc"
 					)
-				v-card-actions
-					v-spacer
-					v-dialog(
-						width="500"
-						v-model="selectImage"
-					)
-						template(v-slot:activator="{ on }")
-							v-btn(
-								dark
-								v-on="on"
-								@click="startCapture"
-							) Take Picture
-
-						v-flex(xs12)
-							v-card.pa-4
-								canvas#canvas(
-									width="320" height="320"
-								)
-								.video-container
-									video#video(
-										width="320" height="320"
-										autoplay=true
-									)
-							v-card-actions
-								v-spacer
-								v-btn(
-									color="primary"
-									@click="capture"
-								) Take Picture
-								v-spacer
-					v-spacer
-					v-dialog(
-						width="500"
-						v-model="selectStyle"
-					)
-						template(v-slot:activator="{ on }")
-							v-btn(
-								dark
-								v-on="on"
-							) Select Style
-
-						v-flex(xs12)
-							v-card
-								v-container(grid-list-sm fluid)
-									v-layout(row wrap)
-										v-flex(
-											v-for="style in styles"
-											:key="style"
-											xs4
-										)
-											v-hover
-												v-card.ma-1(
-													tile
-													slot-scope="{ hover }"
-    												:class="`elevation-${hover ? 12 : 2}`"
-													:style="{ cursor: 'pointer'}"
-												)
-													v-img(
-														:src="`/${style}.jpg`"
-														aspect-ratio="1"
-														class="grey lighten-2"
-														@click="setStyle(style)"
+				v-card-actions.mx-3
+					v-card-text
+						v-dialog(
+							width="500"
+							v-model="selectSample"
+						)
+							template(v-slot:activator="{ on }")
+								v-btn.mx-1(
+									dark
+									v-on="on"
+									@click="startCapture"
+								) Select Image
+							v-flex(xs12)
+								v-card
+									v-container(grid-list-sm fluid)
+										v-layout(row wrap)
+											v-flex(
+												v-for="sample in samples"
+												:key="sample"
+												xs4
+											)
+												v-hover
+													v-card.ma-1(
+														tile
+														slot-scope="{ hover }"
+														:class="`elevation-${hover ? 12 : 2}`"
+														:style="{ cursor: 'pointer'}"
 													)
+														v-img(
+															:src="sample"
+															aspect-ratio="1"
+															class="grey lighten-2"
+															@click="setSample(sample)"
+														)
+											
+						v-dialog(
+							width="500"
+							v-model="takePicture"
+						)
+							template(v-slot:activator="{ on }")
+								v-btn.mx-1(
+									dark
+									v-on="on"
+									@click="startCapture"
+								) Take Picture
+							v-flex(xs12)
+								v-card.pa-4
+									canvas#canvas(
+										width="320" height="320"
+									)
+									.video-container
+										video#video(
+											width="320" height="320"
+											autoplay=true
+										)
+									v-card-actions
+										v-spacer
+										v-btn(
+											dark
+											@click="capture"
+										) Take Picture
+										v-spacer
 					v-spacer
-					v-btn(
-						color="primary"
-						@click="styletransfer"
-					) Transfer Style
-					v-spacer
+					v-card-text
+						v-dialog(
+							width="500"
+							v-model="selectStyle"
+						)
+							template(v-slot:activator="{ on }")
+								v-btn.mx-1(
+									dark
+									v-on="on"
+								) Select Style
+
+							v-flex(xs12)
+								v-card
+									v-container(grid-list-sm fluid)
+										v-layout(row wrap)
+											v-flex(
+												v-for="style in styles"
+												:key="style"
+												xs4
+											)
+												v-hover
+													v-card.ma-1(
+														tile
+														slot-scope="{ hover }"
+														:class="`elevation-${hover ? 12 : 2}`"
+														:style="{ cursor: 'pointer'}"
+													)
+														v-img(
+															:src="`/styles/${style}.jpg`"
+															aspect-ratio="1"
+															class="grey lighten-2"
+															@click="setStyle(style)"
+														)
+					v-card-text
+						v-btn.mx-1(
+							color="primary"
+							@click="styletransfer"
+						) Transfer Style
+						v-spacer
 </template>
 
 <script>
@@ -101,25 +134,33 @@ export default {
 	data() {
 		return {
 			style: undefined,
-			image: '/puppy.jpg',
-			imageSrc: '/puppy.jpg',
+			image: '/samples/puppy.jpg',
+			imageSrc: '/samples/puppy.jpg',
 			MediaStream: window.MediaStream,
 			selectStyle: false,
-			selectImage: false,
+			selectSample: false,
+			takePicture: false,
 			model: 'udnie',
 			styles: [
+				'fuchun',
 				'la_muse',
 				'rain_princess',
 				'scream',
+				'signac',
 				'udnie',
 				'wave',
 				'wreck'
+			],
+			samples: [
+				'/samples/puppy.jpg',
+				'/samples/arch.jpg',
+				'/samples/vermeer.jpg'
 			]
 		}
 	},
 	computed: {
 		stylePreview() {
-			return `/${this.model}.jpg`
+			return `/styles/${this.model}.jpg`
 		},
 		styleModel() {
 			return `/models/${this.model}`
@@ -134,10 +175,16 @@ export default {
 		setStyle(style) {
 			this.selectStyle = false
 			this.model = style
+			this.imageSrc = this.image
 			
 			this.style = ml5.styleTransfer(this.styleModel, () => {
 				console.log('model loaded')
 			})
+		},
+		setSample(sample) {
+			this.selectSample = false
+			this.image = sample
+			this.imageSrc = sample
 		},
 		async styletransfer() {
 			let image = document.getElementById('image')
@@ -157,7 +204,7 @@ export default {
 		},
 		stopCapture() {
 			this.MediaStream.getVideoTracks()[0].stop()
-			this.selectImage = false
+			this.takePicture = false
 		},
 		capture() {
 			navigator.mediaDevices.getUserMedia({video: true})
@@ -215,6 +262,7 @@ export default {
 
 
 							img.src = this.imageSrc
+							this.samples.push(this.imageSrc)
 						})
 						.catch(err => console.error(err))
 				})
@@ -230,15 +278,16 @@ export default {
 	padding-top: 30%;
 	position: relative;
 	display: inline-block;
+	overflow: hidden;
 }
+
 .image {
 	position: absolute;
 	height: 100%;
-	width: 100%;
-	top: 0;
-	left: 0;
-	bottom: 0;
-	right: 0;
+	width: auto;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
 }
 
 .video-container, canvas {
