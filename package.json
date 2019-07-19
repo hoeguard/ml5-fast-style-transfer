@@ -1,0 +1,25 @@
+{
+  "name": "ml5-style-transfer",
+  "version": "1.0.0",
+  "description": "ML5 Style Transfer POC",
+  "author": "rhogard",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "generate": "nuxt generate"
+  },
+  "dependencies": {
+    "@nuxtjs/vuetify": "0.5.5",
+    "ml5": "^0.3.1",
+    "nuxt": "^2.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.9",
+    "pug": "^2.0.4",
+    "pug-plain-loader": "^1.0.0",
+    "stylus": "^0.54.5",
+    "stylus-loader": "^3.0.2"
+  }
+}
