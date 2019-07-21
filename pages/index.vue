@@ -64,7 +64,7 @@ v-container(grid-list-md text-xs-center)
 																	)
 																		v-card.grey.darken-4
 																			v-responsive
-																				v-img.ma-5(
+																				img.ma-5(
 																					contain
 																					src="/icons/camera-solid.svg"
 																				)
@@ -84,7 +84,7 @@ v-container(grid-list-md text-xs-center)
 																	)
 																		v-card.grey.darken-4
 																			v-responsive
-																				v-img.ma-5(
+																				img.ma-5(
 																					contain
 																					src="/icons/image-solid.svg"
 																				)
