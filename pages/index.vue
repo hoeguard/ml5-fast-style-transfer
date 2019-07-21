@@ -288,9 +288,14 @@ export default {
 			this.loading = true
 			this.snackbar = false
 			const image = document.getElementById('image')
+			
+			// unfortunately the ml5 implementation of tf is ui blocking
+			// delay to give user visual queues that application is loading
+			await new Promise(resolve => setTimeout(resolve, 300));
+
 			const start = performance.now()
 
-			await this.style.transfer(image, (err, result) => {
+			this.style.transfer(image, (err, result) => {
 				if (err) {
 					console.log(err)
 					return
