@@ -5,7 +5,7 @@ v-container(grid-list-md text-xs-center)
 			v-card
 				v-layout(row wrap)
 					v-flex.pa-0(xs4)
-						v-card.px-2.py-4(flat)
+						v-card.px-2.py-4(flat v-if="sample")
 							v-tooltip(top :disabled="!sample.attribution")
 								template(v-slot:activator="{ on }")
 									v-img(
