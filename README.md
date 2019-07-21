@@ -1,4 +1,4 @@
-# ml5-style-transfer
+# ml5-fast-style-transfer
 
 > ML5 Style Transfer POC
 

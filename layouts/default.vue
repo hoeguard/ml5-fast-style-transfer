@@ -1,7 +1,7 @@
 <template lang="pug">
 v-app(dark)
 	v-toolbar(app)
-		v-toolbar-title(class="white--text") ML5 Style Transferer
+		v-toolbar-title(class="white--text") ML5 Fast Style Transfer
 		v-spacer
 	v-content(app)
 		nuxt

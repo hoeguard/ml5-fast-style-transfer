@@ -1,7 +1,7 @@
 {
   "name": "ml5-style-transfer",
   "version": "1.0.0",
-  "description": "ML5 Style Transfer POC",
+  "description": "ML5 Fast Style Transfer POC",
   "author": "rhogard",
   "private": true,
   "scripts": {

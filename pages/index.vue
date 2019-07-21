@@ -195,8 +195,8 @@ export default {
 	data() {
 		return {
 			style: undefined,
-			image: '/samples/puppy.jpg',
-			imageSrc: '/samples/puppy.jpg',
+			image: '/samples/arch.jpg',
+			imageSrc: '/samples/archjpg',
 			pixels: 640,
 			imageReader: {},
 			MediaStream: {},
@@ -205,6 +205,7 @@ export default {
 			photoDialog: false,
 			snackbar: false,
 			log: '',
+			loading: false,
 			model: 'udnie',
 			styles: [
 				'fuchun',
@@ -217,8 +218,8 @@ export default {
 				'wreck'
 			],
 			samples: [
-				'/samples/puppy.jpg',
 				'/samples/arch.jpg',
+				'/samples/puppy.jpg',
 				'/samples/vermeer.jpg'
 			]
 		}
@@ -242,7 +243,7 @@ export default {
 			this.styleDialog = false
 			this.model = style
 			this.imageSrc = this.image
-			
+
 			const start = performance.now()
 			
 			this.style = ml5.styleTransfer(this.styleModel, () => {
