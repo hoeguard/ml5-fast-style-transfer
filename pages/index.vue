@@ -24,6 +24,7 @@ v-container(grid-list-md text-xs-center)
 								)
 									template(v-slot:activator="{ on }")
 										v-btn.mx-1(
+											:disabled="loading"
 											dark
 											v-on="on"
 										) Select Image
@@ -126,6 +127,7 @@ v-container(grid-list-md text-xs-center)
 								)
 									template(v-slot:activator="{ on }")
 										v-btn.mx-1(
+											:disabled="loading"
 											dark
 											v-on="on"
 										) Select Style
@@ -162,6 +164,7 @@ v-container(grid-list-md text-xs-center)
 							v-card-actions.pt-4.pb-0
 								v-spacer
 								v-btn.mx-1(
+									:disabled="loading"
 									color="primary"
 									@click="styletransfer"
 								) Transfer Style
@@ -261,6 +264,7 @@ export default {
 	},
 	methods: {
 		setStyle(style) {
+			this.loading = true
 			this.snackbar = false
 			this.styleDialog = false
 			this.model = style
@@ -272,6 +276,7 @@ export default {
 				const end = performance.now()
 				this.log = `Model '${style}' loaded in ${Math.round(end - start)}ms`
 				this.snackbar = true
+				this.loading = false
 			})
 		},
 		setSample(sample) {
@@ -280,6 +285,7 @@ export default {
 			this.imageSrc = sample.src
 		},
 		async styletransfer() {
+			this.loading = true
 			this.snackbar = false
 			const image = document.getElementById('image')
 			const start = performance.now()
@@ -292,6 +298,7 @@ export default {
 				const end = performance.now()
 				this.log = `Style transferred in ${Math.round(end - start)}ms`
 				this.snackbar = true
+				this.loading = false
 				this.imageSrc = result.src
 			})
 		},
@@ -339,9 +346,11 @@ export default {
 			this.setImage(file)
 		},
 		async setImage(file) {
+			this.loading = true
 			await this.imageReader.read(file)
 			const dataURL = await this.imageReader.resize(this.pixels, this.pixels)
 
+			this.loading = false
 			this.samples.push({ src: dataURL })
 			this.sample = this.samples[this.samples.length - 1]
 			this.imageSrc = dataURL
