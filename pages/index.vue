@@ -6,11 +6,16 @@ v-container(grid-list-md text-xs-center)
 				v-layout(row wrap)
 					v-flex.pa-0(xs4)
 						v-card.px-2.py-4(flat)
-							v-img(
-								width="100%"
-								aspect-ratio="1"
-								:src="image"
-							)
+							v-tooltip(top :disabled="!sample.attribution")
+								template(v-slot:activator="{ on }")
+									v-img(
+										v-if="sample.src"
+										v-on="on"
+										width="100%"
+										aspect-ratio="1"
+										:src="sample.src"
+									)
+								small(v-if="sample.attribution") {{ sample.attribution }}
 							v-card-actions.pt-4.pb-0
 								v-spacer
 								v-dialog(
@@ -28,7 +33,7 @@ v-container(grid-list-md text-xs-center)
 												v-layout(row wrap)
 													v-flex(
 														v-for="sample in samples"
-														:key="sample"
+														:key="sample.name"
 														xs4
 													)
 														v-hover
@@ -40,7 +45,7 @@ v-container(grid-list-md text-xs-center)
 																@click="setSample(sample)"
 															)
 																v-img(
-																	:src="sample"
+																	:src="sample.src"
 																	aspect-ratio="1"
 																)
 												v-layout(row wrap)
@@ -196,7 +201,7 @@ export default {
 		return {
 			style: undefined,
 			image: '/samples/arch.jpg',
-			imageSrc: '/samples/archjpg',
+			imageSrc: '/samples/arch.jpg',
 			pixels: 640,
 			imageReader: {},
 			MediaStream: {},
@@ -217,10 +222,26 @@ export default {
 				'wave',
 				'wreck'
 			],
+			sample: undefined,
 			samples: [
-				'/samples/arch.jpg',
-				'/samples/puppy.jpg',
-				'/samples/vermeer.jpg'
+				{
+					src: "/samples/arch.jpg",
+					attribution: "St_Louis_night_expblend.jpg: Daniel Schwenderivative work: ←fetchcomms [CC BY-SA 2.5 (https://creativecommons.org/licenses/by-sa/2.5)]"
+				},
+				{
+					src: "/samples/cage.jpg",
+					attribution: "nicolas genin [CC BY-SA 2.0 (https://creativecommons.org/licenses/by-sa/2.0)]"
+				},
+				{
+					src: "/samples/vangogh.jpg"
+				},
+				{
+					src: "/samples/vermeer.jpg"
+				},
+				{
+					src: "/samples/stlouis.jpg",
+					attribution: "Colin Faulkingham [Public domain]"
+				}
 			]
 		}
 	},
@@ -235,6 +256,7 @@ export default {
 	mounted() {
 		this.MediaStream = window.MediaStream
 		this.imageReader = new imageReader()
+		this.sample = this.samples[0]
 		this.setStyle(this.model)
 	},
 	methods: {
@@ -242,7 +264,7 @@ export default {
 			this.snackbar = false
 			this.styleDialog = false
 			this.model = style
-			this.imageSrc = this.image
+			this.imageSrc = this.sample.src
 
 			const start = performance.now()
 			
@@ -254,8 +276,8 @@ export default {
 		},
 		setSample(sample) {
 			this.sampleDialog = false
-			this.image = sample
-			this.imageSrc = sample
+			this.sample = sample
+			this.imageSrc = sample.src
 		},
 		async styletransfer() {
 			this.snackbar = false
@@ -320,8 +342,9 @@ export default {
 			await this.imageReader.read(file)
 			const dataURL = await this.imageReader.resize(this.pixels, this.pixels)
 
-			this.samples.push(dataURL)
-			this.image = this.imageSrc = dataURL
+			this.samples.push({ src: dataURL })
+			this.sample = this.samples[this.samples.length - 1]
+			this.imageSrc = dataURL
 		}
 	}
 }
