@@ -19,12 +19,13 @@ v-container(grid-list-md text-xs-center)
 					v-card-text
 						v-dialog(
 							width="500"
-							v-model="sampleDialog"
+							v-model="selectSample"
 						)
 							template(v-slot:activator="{ on }")
 								v-btn.mx-1(
 									dark
 									v-on="on"
+									@click="startCapture"
 								) Select Image
 							v-flex(xs12)
 								v-card
@@ -41,59 +42,24 @@ v-container(grid-list-md text-xs-center)
 														slot-scope="{ hover }"
 														:class="`elevation-${hover ? 12 : 2}`"
 														:style="{ cursor: 'pointer'}"
-														@click="setSample(sample)"
 													)
 														v-img(
 															:src="sample"
 															aspect-ratio="1"
 															class="grey lighten-2"
+															@click="setSample(sample)"
 														)
-										v-layout(row wrap)
-											v-tooltip(bottom)
-												template(v-slot:activator="{ on }")
-													v-flex(xs4 v-on="on")
-														v-hover
-															v-card.ma-1(
-																tile
-																aspect-ratio="1"
-																slot-scope="{ hover }"
-																:class="`elevation-${hover ? 12 : 2}`"
-																:style="{ cursor: 'pointer'}"
-																@click="startCapture"
-															)
-																v-card.grey.darken-4
-																	v-responsive
-																		v-img.ma-5(
-																			contain
-																			src="/icons/camera-solid.svg"
-																		)
-												span Take Photo
-																
-											v-tooltip(bottom)
-												template(v-slot:activator="{ on }")
-													v-flex(xs4 v-on="on")
-														v-hover
-															v-card.ma-1(
-																tile
-																aspect-ratio="1"
-																slot-scope="{ hover }"
-																:class="`elevation-${hover ? 12 : 2}`"
-																:style="{ cursor: 'pointer'}"
-																@click="$refs.imageUpload.click()"
-															)
-																v-card.grey.darken-4
-																	v-responsive
-																		v-img.ma-5(
-																			contain
-																			src="/icons/image-solid.svg"
-																		)
-												span Upload Photo
 											
 						v-dialog(
 							width="500"
-							v-model="photoDialog"
+							v-model="takePicture"
 						)
 							template(v-slot:activator="{ on }")
+								v-btn.mx-1(
+									dark
+									v-on="on"
+									@click="startCapture"
+								) Take Picture
 							v-flex(xs12)
 								v-card.pa-4
 									canvas#canvas(
@@ -115,7 +81,7 @@ v-container(grid-list-md text-xs-center)
 					v-card-text
 						v-dialog(
 							width="500"
-							v-model="styleDialog"
+							v-model="selectStyle"
 						)
 							template(v-slot:activator="{ on }")
 								v-btn.mx-1(
@@ -151,13 +117,6 @@ v-container(grid-list-md text-xs-center)
 							@click="styletransfer"
 						) Transfer Style
 						v-spacer
-	input(
-		v-show="false"
-		ref="imageUpload"
-		type="file"
-		accept=".jpg, .jpeg"
-		@change="imageUpload"
-	)
 </template>
 
 <script>
@@ -166,7 +125,7 @@ import ml5 from 'ml5'
 const constraints =  {
 	"video": {
 		width: {
-			exact: 640
+			exact: 320
 		}
 	}
 }
@@ -177,11 +136,10 @@ export default {
 			style: undefined,
 			image: '/samples/puppy.jpg',
 			imageSrc: '/samples/puppy.jpg',
-			imageReader: {},
-			MediaStream: {},
-			styleDialog: false,
-			sampleDialog: false,
-			photoDialog: false,
+			MediaStream: window.MediaStream,
+			selectStyle: false,
+			selectSample: false,
+			takePicture: false,
 			model: 'udnie',
 			styles: [
 				'fuchun',
@@ -209,15 +167,14 @@ export default {
 		}
 	},
 	mounted() {
-		this.MediaStream = window.MediaStream
-		this.imageReader = new imageReader()
 		this.style = ml5.styleTransfer(this.styleModel, () => {
 			console.log('model loaded')
 		})
+		this.cropImage('/samples/vermeer.jpg')
 	},
 	methods: {
 		setStyle(style) {
-			this.styleDialog = false
+			this.selectStyle = false
 			this.model = style
 			this.imageSrc = this.image
 			
@@ -226,23 +183,18 @@ export default {
 			})
 		},
 		setSample(sample) {
-			this.sampleDialog = false
+			this.selectSample = false
 			this.image = sample
 			this.imageSrc = sample
 		},
 		async styletransfer() {
 			let image = document.getElementById('image')
 	
-			const start = performance.now()
 			await this.style.transfer(image, (err, result) => {
-				const end = performance.now()
-				console.log(end - start)
 				this.imageSrc = result.src
 			})
 		},
 		startCapture() {
-			this.styleDialog = this.sampleDialog = false
-			this.photoDialog = true
 			navigator.mediaDevices.getUserMedia(constraints)
 				.then(this.streamCapture)
 				.catch(e => console.log(e))
@@ -253,43 +205,68 @@ export default {
 		},
 		stopCapture() {
 			this.MediaStream.getVideoTracks()[0].stop()
-			this.photoDialog = false
+			this.takePicture = false
 		},
 		capture() {
 			navigator.mediaDevices.getUserMedia({video: true})
-  				.then(this.retrieveMedia)
+  				.then(this.gotMedia)
 				.catch(error => console.error('getUserMedia() error:', error))
 			this.stopCapture()
 		},
-		retrieveMedia(mediaStream) {
+		gotMedia(mediaStream) {
 			let imageHeight, imageWidth
 
 			const mediaStreamTrack = mediaStream.getVideoTracks()[0]
 			const imageCapture = new ImageCapture(mediaStreamTrack)
 
 			imageCapture.takePhoto()
-				.then(async blob => {
-					this.setImage(blob)
+				.then(blob => {
+					this.imageSrc = URL.createObjectURL(blob)
+
+					// const canvas = document.createElement('canvas')
+					let canvas = document.getElementById('canvas')
+					canvas.width = 320
+					canvas.height = 320
+					const ctx = canvas.getContext('2d')
+
+					const img = new Image()
+
+					imageCapture.getPhotoSettings()
+						.then(({ imageHeight, imageWidth }) => {
+							let ratio = imageWidth / imageHeight
+							let width = imageHeight * ratio
+							let height = imageWidth / ratio
+							let xOffset = 0
+							let yOffset = 0
+
+							if (width < canvas.width) {
+								let zoom = canvas.width / width
+								width = zoom * width
+								height = zoom * height
+								yOffset = -(height - canvas.height) / 2
+							}
+
+							if (height < canvas.height) {
+								let zoom = canvas.height / height
+								width = zoom * width
+								height = zoom * height
+								xOffset = -(width - canvas.width) / 2
+							}
+							
+							img.onload = () => {
+								ctx.drawImage(img, xOffset, yOffset, width / 2, height / 2)
+								let canvasImg = canvas.toDataURL("image/jpeg")
+								this.imageSrc = this.image = canvasImg
+							}
+
+
+							img.src = this.imageSrc
+							this.samples.push(this.imageSrc)
+						})
+						.catch(err => console.error(err))
 				})
 				.catch(error => console.error('takePhoto() error:', error))
 		},
-		async imageUpload(e) {
-			this.styleDialog = this.sampleDialog = this.photoDialog = false
-			if (e.srcElement.files[0].type !== "image/jpeg") {
-				console.log('File must be of type image/jpeg')
-				return
-			}
-			let file = e.srcElement.files[0]
-			
-			this.setImage(file)
-		},
-		async setImage(file) {
-			await this.imageReader.read(file)
-			const dataURL = await this.imageReader.resize(400, 400)
-
-			this.samples.push(dataURL)
-			this.image = this.imageSrc = dataURL
-		}
 	}
 }
 
