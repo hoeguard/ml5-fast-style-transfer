@@ -2,155 +2,166 @@
 v-container(grid-list-md text-xs-center)
 	v-layout(row wrap)
 		v-flex(xs12)
-			v-card.pt-4
-				.uniform.ma-2
-					img.image(
-						:src="image"
-					)
-				.uniform.ma-2
-					img.image(
-						:src="stylePreview"
-					)
-				.uniform.ma-2
-					img#image.image(
-						:src="imageSrc"
-					)
-				v-card-actions.mx-3
-					v-card-text
-						v-dialog(
-							width="500"
-							v-model="sampleDialog"
-						)
-							template(v-slot:activator="{ on }")
-								v-btn.mx-1(
-									dark
-									v-on="on"
-								) Select Image
-							v-flex(xs12)
-								v-card
-									v-container(grid-list-sm fluid)
-										v-layout(row wrap)
-											v-flex(
-												v-for="sample in samples"
-												:key="sample"
-												xs4
-											)
-												v-hover
-													v-card.ma-1(
-														tile
-														slot-scope="{ hover }"
-														:class="`elevation-${hover ? 12 : 2}`"
-														:style="{ cursor: 'pointer'}"
-														@click="setSample(sample)"
-													)
-														v-img(
-															:src="sample"
-															aspect-ratio="1"
-															class="grey lighten-2"
-														)
-										v-layout(row wrap)
-											v-tooltip(bottom)
-												template(v-slot:activator="{ on }")
-													v-flex(xs4 v-on="on")
-														v-hover
-															v-card.ma-1(
-																tile
-																aspect-ratio="1"
-																slot-scope="{ hover }"
-																:class="`elevation-${hover ? 12 : 2}`"
-																:style="{ cursor: 'pointer'}"
-																@click="startCapture"
-															)
-																v-card.grey.darken-4
-																	v-responsive
-																		v-img.ma-5(
-																			contain
-																			src="/icons/camera-solid.svg"
-																		)
-												span Take Photo
-																
-											v-tooltip(bottom)
-												template(v-slot:activator="{ on }")
-													v-flex(xs4 v-on="on")
-														v-hover
-															v-card.ma-1(
-																tile
-																aspect-ratio="1"
-																slot-scope="{ hover }"
-																:class="`elevation-${hover ? 12 : 2}`"
-																:style="{ cursor: 'pointer'}"
-																@click="$refs.imageUpload.click()"
-															)
-																v-card.grey.darken-4
-																	v-responsive
-																		v-img.ma-5(
-																			contain
-																			src="/icons/image-solid.svg"
-																		)
-												span Upload Photo
-											
-						v-dialog(
-							width="500"
-							v-model="photoDialog"
-						)
-							template(v-slot:activator="{ on }")
-							v-flex(xs12)
-								v-card.pa-4
-									canvas#canvas(
-										width="320" height="320"
-									)
-									.video-container
-										video#video(
-											width="320" height="320"
-											autoplay=true
-										)
-									v-card-actions
-										v-spacer
-										v-btn(
+			v-card
+				v-layout(row wrap)
+					v-flex.pa-0(xs4)
+						v-card.px-2.py-4(flat)
+							v-img(
+								width="100%"
+								aspect-ratio="1"
+								:src="image"
+							)
+							v-card-actions.pt-4.pb-0
+								v-spacer
+								v-dialog(
+									width="500"
+									v-model="sampleDialog"
+								)
+									template(v-slot:activator="{ on }")
+										v-btn.mx-1(
 											dark
-											@click="capture"
-										) Take Picture
-										v-spacer
-					v-spacer
-					v-card-text
-						v-dialog(
-							width="500"
-							v-model="styleDialog"
-						)
-							template(v-slot:activator="{ on }")
-								v-btn.mx-1(
-									dark
-									v-on="on"
-								) Select Style
-
-							v-flex(xs12)
-								v-card
-									v-container(grid-list-sm fluid)
-										v-layout(row wrap)
-											v-flex(
-												v-for="style in styles"
-												:key="style"
-												xs4
-											)
-												v-hover
-													v-card.ma-1(
-														tile
-														slot-scope="{ hover }"
-														:class="`elevation-${hover ? 12 : 2}`"
-														:style="{ cursor: 'pointer'}"
+											v-on="on"
+										) Select Image
+									v-flex(xs12)
+										v-card
+											v-container(grid-list-sm fluid)
+												v-layout(row wrap)
+													v-flex(
+														v-for="sample in samples"
+														:key="sample"
+														xs4
 													)
-														v-img(
-															:src="`/styles/${style}.jpg`"
-															aspect-ratio="1"
-															class="grey lighten-2"
-															@click="setStyle(style)"
-														)
-					v-card-text
-						v-btn.mx-1(
-							color="primary"
-							@click="styletransfer"
-						) Transfer Style
-						v-spacer
+														v-hover
+															v-card.ma-1(
+																tile
+																slot-scope="{ hover }"
+																:class="`elevation-${hover ? 12 : 2}`"
+																:style="{ cursor: 'pointer'}"
+																@click="setSample(sample)"
+															)
+																v-img(
+																	:src="sample"
+																	aspect-ratio="1"
+																)
+												v-layout(row wrap)
+													v-tooltip(bottom)
+														template(v-slot:activator="{ on }")
+															v-flex(xs4 v-on="on")
+																v-hover
+																	v-card.ma-1(
+																		tile
+																		aspect-ratio="1"
+																		slot-scope="{ hover }"
+																		:class="`elevation-${hover ? 12 : 2}`"
+																		:style="{ cursor: 'pointer'}"
+																		@click="startCapture"
+																	)
+																		v-card.grey.darken-4
+																			v-responsive
+																				v-img.ma-5(
+																					contain
+																					src="/icons/camera-solid.svg"
+																				)
+														span Take Photo
+																		
+													v-tooltip(bottom)
+														template(v-slot:activator="{ on }")
+															v-flex(xs4 v-on="on")
+																v-hover
+																	v-card.ma-1(
+																		tile
+																		aspect-ratio="1"
+																		slot-scope="{ hover }"
+																		:class="`elevation-${hover ? 12 : 2}`"
+																		:style="{ cursor: 'pointer'}"
+																		@click="$refs.imageUpload.click()"
+																	)
+																		v-card.grey.darken-4
+																			v-responsive
+																				v-img.ma-5(
+																					contain
+																					src="/icons/image-solid.svg"
+																				)
+														span Upload Photo
+													
+								v-dialog(
+									width="500"
+									v-model="photoDialog"
+								)
+									template(v-slot:activator="{ on }")
+									v-flex(xs12)
+										v-card.pa-4
+											.video-container
+												video#video(
+													width="800" height="800"
+													autoplay=true
+												)
+											v-card-actions.pt-4.pb-0
+												v-spacer
+												v-btn(
+													dark
+													@click="capture"
+												) Take Photo
+												v-spacer
+
+								v-spacer
+					
+					v-flex.pa-0(xs4)
+						v-card.px-2.py-4(flat)
+							v-img(
+								width="100%"
+								aspect-ratio="1"
+								:src="stylePreview"
+							)
+							v-card-actions.pt-4.pb-0
+								v-spacer
+								v-dialog(
+									width="500"
+									v-model="styleDialog"
+								)
+									template(v-slot:activator="{ on }")
+										v-btn.mx-1(
+											dark
+											v-on="on"
+										) Select Style
+
+									v-flex(xs12)
+										v-card
+											v-container(grid-list-sm fluid)
+												v-layout(row wrap)
+													v-flex(
+														v-for="style in styles"
+														:key="style"
+														xs4
+													)
+														v-hover
+															v-card.ma-1(
+																tile
+																slot-scope="{ hover }"
+																:class="`elevation-${hover ? 12 : 2}`"
+																:style="{ cursor: 'pointer'}"
+															)
+																v-img(
+																	:src="`/styles/${style}.jpg`"
+																	aspect-ratio="1"
+																	@click="setStyle(style)"
+																)
+								v-spacer
+
+					v-flex.pa-0(xs4)
+						v-card.px-2.py-4(flat)
+							.tf-image
+								img#image(
+									:src="imageSrc"
+							)
+							v-card-actions.pt-4.pb-0
+								v-spacer
+								v-btn.mx-1(
+									color="primary"
+									@click="styletransfer"
+								) Transfer Style
+								v-spacer
+
 	input(
 		v-show="false"
 		ref="imageUpload"
@@ -158,6 +169,15 @@ v-container(grid-list-md text-xs-center)
 		accept=".jpg, .jpeg"
 		@change="imageUpload"
 	)
+	
+	v-snackbar(
+		v-model="snackbar"
+		bottom
+		:timeout="4000"
+	) 
+		v-spacer
+		span {{ log }}
+		v-spacer
 </template>
 
 <script>
@@ -166,7 +186,7 @@ import ml5 from 'ml5'
 const constraints =  {
 	"video": {
 		width: {
-			exact: 640
+			exact: 1200
 		}
 	}
 }
@@ -177,11 +197,14 @@ export default {
 			style: undefined,
 			image: '/samples/puppy.jpg',
 			imageSrc: '/samples/puppy.jpg',
+			pixels: 640,
 			imageReader: {},
 			MediaStream: {},
 			styleDialog: false,
 			sampleDialog: false,
 			photoDialog: false,
+			snackbar: false,
+			log: '',
 			model: 'udnie',
 			styles: [
 				'fuchun',
@@ -211,18 +234,21 @@ export default {
 	mounted() {
 		this.MediaStream = window.MediaStream
 		this.imageReader = new imageReader()
-		this.style = ml5.styleTransfer(this.styleModel, () => {
-			console.log('model loaded')
-		})
+		this.setStyle(this.model)
 	},
 	methods: {
 		setStyle(style) {
+			this.snackbar = false
 			this.styleDialog = false
 			this.model = style
 			this.imageSrc = this.image
 			
+			const start = performance.now()
+			
 			this.style = ml5.styleTransfer(this.styleModel, () => {
-				console.log('model loaded')
+				const end = performance.now()
+				this.log = `Model '${style}' loaded in ${Math.round(end - start)}ms`
+				this.snackbar = true
 			})
 		},
 		setSample(sample) {
@@ -231,12 +257,18 @@ export default {
 			this.imageSrc = sample
 		},
 		async styletransfer() {
-			let image = document.getElementById('image')
-	
+			this.snackbar = false
+			const image = document.getElementById('image')
 			const start = performance.now()
+
 			await this.style.transfer(image, (err, result) => {
+				if (err) {
+					console.log(err)
+					return
+				}
 				const end = performance.now()
-				console.log(end - start)
+				this.log = `Style transferred in ${Math.round(end - start)}ms`
+				this.snackbar = true
 				this.imageSrc = result.src
 			})
 		},
@@ -285,7 +317,7 @@ export default {
 		},
 		async setImage(file) {
 			await this.imageReader.read(file)
-			const dataURL = await this.imageReader.resize(400, 400)
+			const dataURL = await this.imageReader.resize(this.pixels, this.pixels)
 
 			this.samples.push(dataURL)
 			this.image = this.imageSrc = dataURL
@@ -372,7 +404,15 @@ function imageReader() {
 	overflow: hidden;
 }
 
-.image {
+.tf-image {
+	position: relative;
+	width: 100%;
+	height: 0;
+	padding-top: 100%;
+	overflow: hidden;
+}
+
+#image {
 	position: absolute;
 	height: 100%;
 	width: auto;
@@ -382,8 +422,8 @@ function imageReader() {
 }
 
 .video-container, canvas {
-	height: 320px;
-	width: 320px;
+	height: 400px;
+	width: 400px;
 	position: relative;
 	overflow: hidden;
 	margin: 0 auto;
@@ -391,16 +431,12 @@ function imageReader() {
 
 #video {
 	position: absolute;
-    min-width: 100%;
-    min-height: 100%;
-    width: auto;
-    height: auto;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-#canvas {
-	display: none;
+	min-width: 100%;
+	min-height: 100%;
+	width: auto;
+	height: auto;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%) scale(0.6);
 }
 </style>
